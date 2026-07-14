@@ -207,12 +207,13 @@
             text-align: center;
             width: 140px;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
         }
 
         .player-pulsar-card:hover {
             transform: scale(1.05);
             border-color: var(--gold);
+            background: rgba(255,255,255,0.1);
         }
 
         .key-badge {
@@ -471,7 +472,7 @@
             </div>
 
             <div style="text-align: center; color: var(--gold); font-size: 1.2rem; font-weight: bold; margin: 15px 0;" id="pulsarStatus">
-                ¡PRESIONA TU TECLA O HAZ CLIC EN TU AVATAR CUANDO SEPAS LA RESPUESTA!
+                ¡PRESIONA TU TECLA O HAZ CLIC EN EL PERSONAJE CUANDO SEPAS LA RESPUESTA!
             </div>
 
             <div class="pulsar-active-players" id="pulsarPlayersContainer">
@@ -640,7 +641,7 @@
             }
 
             activePlayers = [];
-            state.stats = {}; // Resetear estadísticas previas para que solo queden los seleccionados
+            state.stats = {}; // Limpiamos estadísticas anteriores para no arrastrar fantasmas
             checkedBoxes.forEach(box => {
                 const char = PERSONAJES.find(p => p.id === box.value);
                 activePlayers.push(char);
@@ -673,13 +674,13 @@
             document.getElementById("currentPhaseName").innerText = "Pulsador Grupal";
             document.getElementById("roundTimerBox").style.display = "none";
             document.getElementById("pulsarAnsweringArea").style.display = "none";
-            document.getElementById("pulsarStatus").innerText = "¡PRESIONA TU TECLA O HAZ CLIC EN TU AVATAR CUANDO SEPAS LA RESPUESTA!";
+            document.getElementById("pulsarStatus").innerText = "¡PRESIONA TU TECLA O HAZ CLIC EN EL PERSONAJE CUANDO SEPAS LA RESPUESTA!";
             
             const container = document.getElementById("pulsarPlayersContainer");
             container.innerHTML = "";
             activePlayers.forEach(p => {
                 container.innerHTML += `
-                    <div class="player-pulsar-card" id="pulsar_card_${p.id}" onclick="handlePulsarClick('${p.id}')">
+                    <div class="player-pulsar-card" id="pulsar_card_${p.id}" onclick="handlePlayerPulsarClick('${p.id}')">
                         <div class="player-avatar-small avatar-pulsar-size">
                             <img src="${p.img}" alt="${p.name}" class="img-fluid">
                         </div>
@@ -698,13 +699,13 @@
             switchScreen("screenPulsar");
         }
 
-        function selectPulsarWinner(player) {
-            state.pulsarWinner = player;
+        function triggerPulsarWinner(winnerPlayer) {
+            state.pulsarWinner = winnerPlayer;
             window.removeEventListener('keydown', handlePulsarKeyDown);
             
-            document.getElementById("pulsarStatus").innerText = `¡${player.name} ha bloqueado el pulsador!`;
-            document.getElementById(`pulsar_card_${player.id}`).style.borderColor = "var(--gold)";
-            document.getElementById(`pulsar_card_${player.id}`).style.background = "rgba(214,175,87,0.3)";
+            document.getElementById("pulsarStatus").innerText = `¡${winnerPlayer.name} ha bloqueado el pulsador!`;
+            document.getElementById(`pulsar_card_${winnerPlayer.id}`).style.borderColor = "var(--gold)";
+            document.getElementById(`pulsar_card_${winnerPlayer.id}`).style.background = "rgba(214,175,87,0.3)";
 
             showPulsarAnswers();
         }
@@ -716,16 +717,16 @@
             const matchingPlayer = activePlayers.find(p => p.key === keyName);
 
             if (matchingPlayer) {
-                selectPulsarWinner(matchingPlayer);
+                triggerPulsarWinner(matchingPlayer);
             }
         }
 
-        function handlePulsarClick(playerId) {
+        function handlePlayerPulsarClick(playerId) {
             if (state.currentPhase !== "PULSAR" || state.pulsarWinner !== null) return;
-            
+
             const matchingPlayer = activePlayers.find(p => p.id === playerId);
             if (matchingPlayer) {
-                selectPulsarWinner(matchingPlayer);
+                triggerPulsarWinner(matchingPlayer);
             }
         }
 
