@@ -363,7 +363,7 @@
             color: var(--gold);
         }
 
-        /* Estilos de imágenes */
+        /* Estilos de imágenes ajustadas para que no se corten */
         .img-placeholder-main {
             width: 100%;
             height: 250px;
@@ -380,7 +380,7 @@
         .img-fluid {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* Ajusta la proporción sin recortar */
             display: block;
         }
 
@@ -445,7 +445,7 @@
 
                     <label style="color: var(--gold); display:block; margin-bottom:5px;">Selecciona los Jugadores (Mínimo 2):</label>
                     <div class="character-select-grid" id="charSelectContainer">
-                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -476,12 +476,12 @@
             </div>
 
             <div class="pulsar-active-players" id="pulsarPlayersContainer">
-                </div>
+            </div>
             
             <div id="pulsarAnsweringArea" style="display:none; margin-top:20px; border-top: 2px dashed var(--gold); padding-top: 20px;">
                 <h3 id="pulsarWinnerTitle" style="color: #64b5f6;"></h3>
                 <div class="answers-grid" id="pulsarAnswersGrid">
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -504,7 +504,7 @@
                     </div>
 
                     <div class="answers-grid" id="quizAnswersGrid">
-                        </div>
+                    </div>
 
                     <div class="lifelines-box">
                         <button class="lifeline-btn" id="btn50" onclick="useLifeline(50)">Comodín 50%</button>
@@ -513,7 +513,7 @@
                 </div>
 
                 <div class="money-ladder" id="moneyLadder">
-                    </div>
+                </div>
 
             </div>
         </div>
@@ -538,7 +538,7 @@
                     </tr>
                 </thead>
                 <tbody id="statsTableBody">
-                    </tbody>
+                </tbody>
             </table>
 
             <button class="btn" onclick="resetGame()">Volver a Empezar una Nueva Historia</button>
@@ -581,7 +581,7 @@
             ]
         };
 
-        // PERSONAJES ACTUALIZADOS (Se añaden: El Conde Rugen y El Profesor de Matemáticas)
+        // PERSONAJES ACTUALIZADOS
         const PERSONAJES = [
             { id: "westley", name: "Westley", key: "Q", img: "resources/westley.png" },
             { id: "inigo", name: "Íñigo Montoya", key: "P", img: "resources/inigo.png" },
@@ -610,12 +610,13 @@
 
         const STEPS_COUNT = 15;
 
+        // Se cargan todos desmarcados por defecto para que el usuario elija exactamente los suyos
         window.onload = function() {
             const container = document.getElementById("charSelectContainer");
             PERSONAJES.forEach(char => {
                 container.innerHTML += `
                     <div>
-                        <input type="checkbox" id="chk_${char.id}" class="char-checkbox" value="${char.id}" checked>
+                        <input type="checkbox" id="chk_${char.id}" class="char-checkbox" value="${char.id}">
                         <label for="chk_${char.id}" class="char-label">
                             <div class="img-placeholder">
                                 <img src="${char.img}" alt="${char.name}" class="img-fluid" id="img_thumb_${char.id}">
@@ -641,7 +642,8 @@
             }
 
             activePlayers = [];
-            state.stats = {}; // Limpiamos estadísticas anteriores para no arrastrar fantasmas
+            state.stats = {}; 
+            
             checkedBoxes.forEach(box => {
                 const char = PERSONAJES.find(p => p.id === box.value);
                 activePlayers.push(char);
@@ -678,6 +680,8 @@
             
             const container = document.getElementById("pulsarPlayersContainer");
             container.innerHTML = "";
+            
+            // Renderiza ÚNICAMENTE los personajes seleccionados en activePlayers
             activePlayers.forEach(p => {
                 container.innerHTML += `
                     <div class="player-pulsar-card" id="pulsar_card_${p.id}" onclick="handlePlayerPulsarClick('${p.id}')">
@@ -902,7 +906,7 @@
                     }
 
                     if (state.quizCurrentStep === STEPS_COUNT) {
-                        endGame(`¡${state.quizPlayer.name} ha respondido las 15 preguntas del tirón y ha conquistado el trono de Florín!`);
+                        endGame sabotage(`¡${state.quizPlayer.name} ha respondido las 15 preguntas del tirón y ha conquistado el trono de Florín!`);
                     } else {
                         loadQuizQuestion();
                     }
