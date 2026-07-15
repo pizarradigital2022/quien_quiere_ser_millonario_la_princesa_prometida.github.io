@@ -887,6 +887,7 @@
             }
         }
 
+        // CORREGIDO AQUÍ EL ERROR DE SINTAXIS DE 'endGame sabotage'
         function checkQuizAnswer(idx) {
             clearInterval(timers.round);
             const correctIdx = state.currentQuizQuestion.c;
@@ -906,7 +907,7 @@
                     }
 
                     if (state.quizCurrentStep === STEPS_COUNT) {
-                        endGame sabotage(`¡${state.quizPlayer.name} ha respondido las 15 preguntas del tirón y ha conquistado el trono de Florín!`);
+                        endGame(`¡${state.quizPlayer.name} ha respondido las 15 preguntas del tirón y ha conquistado el trono de Florín!`);
                     } else {
                         loadQuizQuestion();
                     }
