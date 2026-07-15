@@ -434,7 +434,7 @@
                     <p>1. <strong>Fase de Pulsador:</strong> El Abuelo lanza una pregunta rápida. El jugador más veloz en presionar su tecla asignada gana el derecho a responder.</p>
                     <p>2. <strong>Fase de Escalada (Las 15 preguntas):</strong> Si el jugador acierta la del pulsador, se enfrenta en solitario a 15 preguntas de dificultad creciente escogidas de forma 100% aleatoria dentro de su bloque. ¡Si las acierta todas seguidas, gana el juego!</p>
                     <p>3. <strong>Rebote:</strong> Si falla en su escalada o se le acaba el tiempo, vuelve a la Fase de Pulsador junto a los demás.</p>
-                    <p>4. <strong>Comodines:</strong> Dispones de un comodín del 50% y otro del 25% por intento. ¡No puedes combinar ambos en la misma pregunta!</p>
+                    <p>4. <strong>Comodines:</strong> Dispones de un comodín del 50% y otro del 25% por intento. ¡Se reinician en cada nueva escalada, pero no puedes combinar ambos en la misma pregunta!</p>
                 </div>
 
                 <div class="setup-card">
@@ -542,7 +542,7 @@
                         <th>Jugador</th>
                         <th>Preguntas Pulsador Respondidas</th>
                         <th>Nivel Máximo Alcanzado</th>
-                        <th>Comodines Usados</th>
+                        <th>Comodines Usados (Totales)</th>
                     </tr>
                 </thead>
                 <tbody id="statsTableBody">
@@ -612,6 +612,8 @@
             quizPlayer: null,
             quizCurrentStep: 0,
             lifelinesUsedThisQuestion: false,
+            used50: false, // Control de comodín 50% por intento
+            used25: false, // Control de comodín 25% por intento
             stats: {}
         };
 
@@ -653,7 +655,12 @@
             checkedBoxes.forEach(box => {
                 const char = PERSONAJES.find(p => p.id === box.value);
                 activePlayers.push(char);
-                state.stats[char.id] = { name: char.name, pulsarWins: 0, maxStep: 0, lifelines: 0 };
+                state.stats[char.id] = { 
+                    name: char.name, 
+                    pulsarWins: 0, 
+                    maxStep: 0, 
+                    lifelines: 0
+                };
             });
 
             gameConfig.totalTime = parseInt(document.getElementById("inputTotalTime").value) * 60;
@@ -677,7 +684,7 @@
         }
 
         function initPulsarPhase() {
-            clearInterval(timers.round); // Asegurar limpiar cualquier contador previo
+            clearInterval(timers.round);
             state.currentPhase = "PULSAR";
             state.pulsarWinner = null;
             document.getElementById("currentPhaseName").innerText = "Pulsador Grupal";
@@ -733,13 +740,12 @@
             const buttons = document.querySelectorAll("#pulsarAnswersGrid .answer-btn");
             buttons.forEach(btn => btn.disabled = false);
 
-            // NUEVO: Iniciar cuenta atrás de 30 segundos una vez bloqueado el pulsador
             startPulsarRoundTimer();
         }
 
         function startPulsarRoundTimer() {
             clearInterval(timers.round);
-            state.roundTimeRemaining = 30; // Tiempo fijo solicitado
+            state.roundTimeRemaining = 30;
             document.getElementById("roundTimerBox").style.display = "block";
             document.getElementById("roundTimer").innerText = state.roundTimeRemaining;
 
@@ -749,7 +755,6 @@
                 if (state.roundTimeRemaining <= 0) {
                     clearInterval(timers.round);
                     
-                    // Bloquear botones inmediatamente
                     const buttons = document.querySelectorAll("#pulsarAnswersGrid .answer-btn");
                     buttons.forEach(btn => btn.disabled = true);
 
@@ -780,7 +785,7 @@
         }
 
         function checkPulsarAnswer(selectedIndex) {
-            clearInterval(timers.round); // Detener el cronómetro de 30 segundos inmediatamente al responder
+            clearInterval(timers.round);
             const correctIndex = state.currentPulsarQuestion.c;
             const buttons = document.querySelectorAll("#pulsarAnswersGrid .answer-btn");
             
@@ -808,6 +813,11 @@
             document.getElementById("currentPhaseName").innerText = "Escalada Individual";
             document.getElementById("roundTimerBox").style.display = "block";
 
+            // CORRECCIÓN: Reseteamos el uso de comodines al iniciar un intento de escalada individual
+            state.used50 = false;
+            state.used25 = false;
+            
+            // Forzar habilitar los botones físicamente en la interfaz gráfica
             document.getElementById("btn50").disabled = false;
             document.getElementById("btn25").disabled = false;
 
@@ -898,6 +908,7 @@
             const correctIdx = state.currentQuizQuestion.c;
 
             if (type === 50) {
+                state.used50 = true; 
                 document.getElementById("btn50").disabled = true;
                 let discarded = 0;
                 for(let i=0; i<4; i++) {
@@ -907,6 +918,7 @@
                     }
                 }
             } else if (type === 25) {
+                state.used25 = true; 
                 document.getElementById("btn25").disabled = true;
                 for(let i=0; i<4; i++) {
                     if(i !== correctIdx) {
