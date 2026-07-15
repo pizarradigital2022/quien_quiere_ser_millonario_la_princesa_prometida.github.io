@@ -434,7 +434,7 @@
                     <p>1. <strong>Fase de Pulsador:</strong> El Abuelo lanza una pregunta rápida. El jugador más veloz en presionar su tecla asignada gana el derecho a responder.</p>
                     <p>2. <strong>Fase de Escalada (Las 15 preguntas):</strong> Si el jugador acierta la del pulsador, se enfrenta en solitario a 15 preguntas de dificultad creciente escogidas de forma 100% aleatoria dentro de su bloque. ¡Si las acierta todas seguidas, gana el juego!</p>
                     <p>3. <strong>Rebote:</strong> Si falla en su escalada o se le acaba el tiempo, vuelve a la Fase de Pulsador junto a los demás.</p>
-                    <p>4. <strong>Comodines:</strong> Dispones de un comodín del 50% y otro del 25% por intento. ¡Se reinician en cada nueva escalada, pero no puedes combinar ambos en la misma pregunta!</p>
+                    <p>4. <strong>Comodines:</strong> Dispones de un comodín del 50% y otro del 25% por intento. ¡No puedes combinar ambos en la misma pregunta!</p>
                 </div>
 
                 <div class="setup-card">
@@ -542,7 +542,7 @@
                         <th>Jugador</th>
                         <th>Preguntas Pulsador Respondidas</th>
                         <th>Nivel Máximo Alcanzado</th>
-                        <th>Comodines Usados (Totales)</th>
+                        <th>Comodines Usados</th>
                     </tr>
                 </thead>
                 <tbody id="statsTableBody">
@@ -557,35 +557,408 @@
     <script>
         /**********************************************************************
          * BANCO DE PREGUNTAS (PROBABILIDAD Y DISTRIBUCIONES 1º BACH CCSS)
+         * Total: 400 preguntas (100 por cada bloque) con respuestas balanceadas en c.
          **********************************************************************/
         const BANCO_PREGUNTAS = {
             pulsar: [
                 { q: "Vizzini tira un dado regular de 6 caras. ¿Probabilidad de que salga un número par?", a: ["1/2", "1/3", "2/3", "1/6"], c: 0 },
-                { q: "Íñigo asesta un golpe con P(Acertar) = 0.75. ¿Cuál es la probabilidad de que falle el golpe?", a: ["0.25", "0.75", "0.50", "0.00"], c: 0 },
-                { q: "Lanzamos dos monedas en los Pantanos del Fuego. ¿Probabilidad de obtener dos caras exactamente?", a: ["1/4", "1/2", "3/4", "1/3"], c: 0 },
-                { q: "En una bolsa hay 4 esferas venenosas y 6 seguras. Westley extrae una al azar. ¿P(Venenosa)?", a: ["0.4", "0.6", "0.2", "1.0"], c: 0 },
-                { q: "Si dos sucesos A y B cumplen que P(A ∩ B) = 0, se dice matemáticamente que son...", a: ["Incompatibles", "Independientes", "Seguros", "Condicionados"], c: 0 }
+                { q: "Íñigo asesta un golpe con P(Acertar) = 0.75. ¿Cuál es la probabilidad de que falle el golpe?", a: ["0.75", "0.25", "0.50", "0.00"], c: 1 },
+                { q: "Lanzamos dos monedas en los Pantanos del Fuego. ¿Probabilidad de obtener dos caras exactamente?", a: ["1/2", "3/4", "1/4", "1/3"], c: 2 },
+                { q: "En una bolsa hay 4 esferas venenosas y 6 seguras. Westley extrae una al azar. ¿P(Venenosa)?", a: ["0.6", "0.2", "1.0", "0.4"], c: 3 },
+                { q: "Si dos sucesos A y B cumplen que P(A ∩ B) = 0, se dice matemáticamente que son...", a: ["Incompatibles", "Independientes", "Seguros", "Condicionados"], c: 0 },
+                { q: "¿Cuál es la probabilidad de obtener un 7 al lanzar un dado regular de 6 caras?", a: ["1/6", "0", "1", "1/7"], c: 1 },
+                { q: "Si la probabilidad de que llueva en Florín es 0.35, ¿cuál es la probabilidad de que no llueva?", a: ["0.35", "0.50", "0.65", "0.75"], c: 2 },
+                { q: "Lanzamos tres monedas al aire en los acantilados. ¿Cuántos resultados posibles tiene el espacio muestral?", a: ["6", "4", "12", "8"], c: 3 },
+                { q: "En una baraja española de 40 cartas, ¿cuántos oros hay en total?", a: ["10", "12", "4", "8"], c: 0 },
+                { q: "Extraemos una carta de una baraja española de 40 cartas. ¿P(Obtener un As cualquiera)?", a: ["1/40", "1/10", "4/10", "1/4"], c: 1 },
+                { q: "Si un suceso es seguro de ocurrir en una prueba matemática, ¿cuál es su probabilidad exacta?", a: ["100", "0.5", "1", "0"], c: 2 },
+                { q: "Si un suceso es físicamente imposible, ¿cuál es su probabilidad matemática asignada?", a: ["-1", "0.1", "No existe", "0"], c: 3 },
+                { q: "Fezzik tira un dado clásico. ¿Probabilidad de que salga un número menor que 5?", a: ["2/3", "1/2", "5/6", "1/3"], c: 0 },
+                { q: "En el séquito real hay 15 nobles y 10 guardias. Elegimos un integrante al azar. ¿P(Guardia)?", a: ["0.60", "0.40", "0.50", "0.25"], c: 1 },
+                { q: "La suma de las probabilidades de todos los sucesos elementales disjuntos de un experimento es...", a: ["0", "1", "100", "El número de sucesos"], c: 1 },
+                { q: "Lanzamos dos dados de 6 caras. ¿Cuántos elementos distintos componen el espacio muestral?", a: ["12", "18", "36", "64"], c: 2 },
+                { q: "Si P(A) = 0.2 y P(B) = 0.5, y son incompatibles, ¿cuánto vale la intersección P(A ∩ B)?", a: ["0.1", "0.7", "0.3", "0"], c: 3 },
+                { q: "Extraemos una carta de la baraja española. ¿P(Obtener exactamente el As de Oros)?", a: ["1/40", "1/10", "1/4", "4/40"], c: 0 },
+                { q: "En una caja hay 5 polvos curativos y 5 venenos. Extraemos uno. ¿P(Polvo curativo)?", a: ["0.25", "0.5", "1", "0.1"], c: 1 },
+                { q: "Si la probabilidad de que Westley gane a Rugen es 0.99, ¿P(Que pierda Westley)?", a: ["0.10", "0.09", "0.01", "0.90"], c: 2 },
+                { q: "¿Cuál de los siguientes define al suceso contrario o complementario de A?", a: ["B", "El suceso vacío", "El suceso imposible", "No A"], c: 3 },
+                { q: "Lanzamos un dado de 6 caras. ¿P(Obtener un número impar mayor que 3)?", a: ["1/6", "1/3", "1/2", "2/3"], c: 0 },
+                { q: "Un dado de Vizzini está trucado: la probabilidad del 6 es 0.3. ¿P(No obtener un 6)?", a: ["0.3", "0.7", "0.5", "0.6"], c: 1 },
+                { q: "Se lanzan dos monedas en el barco de los piratas. ¿P(Obtener al menos una cara)?", a: ["1/2", "1/4", "3/4", "1"], c: 2 },
+                { q: "En un saco de veneno de Vizzini hay 3 viales letales y 7 inofensivos. Extrae uno al azar. ¿P(Letal)?", a: ["0.7", "0.5", "0.1", "0.3"], c: 3 },
+                { q: "Se elige un número del 1 al 20 al azar. ¿P(Que sea múltiplo de 5)?", a: ["1/5", "1/10", "4/5", "2/5"], c: 0 },
+                { q: "El suceso unión A ∪ B ocurre estrictamente cuando...", a: ["No ocurre ninguno de los dos", "Ocurre A, ocurre B o ambos a la vez", "Ocurren ambos simultáneamente", "Ocurre solo A"], c: 1 },
+                { q: "El suceso intersección A ∩ B ocurre estrictamente cuando...", a: ["Ocurre al menos uno de los dos", "Ocurre A pero no B", "Ocurren A y B a la vez", "No ocurre ninguno"], c: 2 },
+                { q: "Si tiramos un dado normal de 6 caras, ¿P(Obtener un número que sea primo)?", a: ["1/3", "2/3", "5/6", "1/2"], c: 3 },
+                { q: "En una baraja de 40 cartas, ¿P(Obtener una figura: Sota, Caballo o Rey)?", a: ["12/40", "3/40", "4/40", "10/40"], c: 0 },
+                { q: "El espacio muestral de lanzar una moneda de oro de Florín es...", a: ["{Cara}", "{Cara, Cruz}", "{Cruz}", "{1, 2}"], c: 1 },
+                { q: "Si P(A) = 0.8, ¿cuánto vale necesariamente la probabilidad del contrario de A?", a: ["0.8", "0.5", "0.2", "-0.8"], c: 2 },
+                { q: "Si un suceso tiene probabilidad exactamente igual a 0.5, se dice que es...", a: ["Seguro", "Imposible", "Incompatible", "Equiprobable con su contrario"], c: 3 },
+                { q: "Lanzamos dos dados normales y sumamos sus puntos. ¿Cuál es la suma más probable?", a: ["7", "6", "8", "12"], c: 0 },
+                { q: "Si un dado regular se lanza una vez, ¿P(Obtener un número mayor o igual a 3)?", a: ["1/2", "2/3", "5/6", "1/3"], c: 1 },
+                { q: "En un grupo de 10 guardias, 2 son rebeldes. Elegimos uno al azar. ¿P(Rebelde)?", a: ["0.8", "0.1", "0.2", "0.5"], c: 2 },
+                { q: "Lanzamos tres monedas normales. ¿P(Obtener exactamente tres cruces)?", a: ["1/4", "3/8", "1/2", "1/8"], c: 3 },
+                { q: "De un mazo clásico de 40 cartas, extraemos una. ¿P(Obtener una copa)?", a: ["1/4", "1/10", "10/40", "1/40"], c: 0 },
+                { q: "La probabilidad de obtener cara en una moneda sesgada es 0.6. ¿P(Obtener cruz)?", a: ["0.6", "0.4", "0.50", "0.3"], c: 1 },
+                { q: "Si la probabilidad de que Buttercup escape es 0.05, ¿P(Que no escape)?", a: ["0.05", "0.50", "0.95", "0.90"], c: 2 },
+                { q: "Se lanza un dado clásico de 6 caras. ¿P(Obtener un número divisor de 6)?", a: ["1/2", "1/3", "5/6", "2/3"], c: 3 },
+                { q: "En una urna hay 2 bolas blancas, 3 rojas y 5 negras. Extraemos una al azar. ¿P(Blanca)?", a: ["0.2", "0.3", "0.5", "0.1"], c: 0 },
+                { q: "Si un suceso es equivalente a la unión del espacio muestral completo, su probabilidad es...", a: ["0", "1", "0.5", "Infinita"], c: 1 },
+                { q: "¿P(Sacar un Rey cualquiera al extraer una sola carta de una baraja de 40)?", a: ["1/40", "10/40", "4/40", "12/40"], c: 2 },
+                { q: "Si P(A) = 1, entonces podemos asegurar con total certeza estadística que A es un suceso...", a: ["Imposible", "Incompatible", "Independiente", "Seguro"], c: 3 },
+                { q: "Lanzamos dos monedas. ¿P(Obtener exactamente una cara y una cruz sin importar el orden)?", a: ["1/2", "1/4", "3/4", "1"], c: 0 },
+                { q: "En un lote de 20 espadas de Toledo, 2 están defectuosas. ¿P(Espada en perfecto estado)?", a: ["0.1", "0.9", "0.8", "0.95"], c: 1 },
+                { q: "El suceso contrario al suceso imposible en cualquier experimento aleatorio es el suceso...", a: ["Contrario", "Vacio", "Seguro", "Elemental"], c: 2 },
+                { q: "Se extrae una bola de un bombo con números del 1 al 9. ¿P(Sacar número par)?", a: ["5/9", "1/2", "1/9", "4/9"], c: 3 },
+                { q: "Si P(A) = 0.3 y P(B) = 0.4, y son sucesos incompatibles, calcula P(A ∪ B).", a: ["0.7", "0.12", "0.1", "0.5"], c: 0 },
+                { q: "En una caja hay bombones de licor (5) y de fresa (15). ¿P(Elegir uno de Licor)?", a: ["3/4", "1/4", "1/3", "1/2"], c: 1 },
+                { q: "Lanzamos dos dados. ¿P(Que los dos números obtenidos en las caras superiores sean idénticos)?", a: ["1/36", "1/12", "1/6", "1/2"], c: 2 },
+                { q: "Se elige una carta de la baraja española de 40 cartas. ¿P(Que sea de espadas o un caballo)?", a: ["10/40", "14/40", "11/40", "13/40"], c: 3 },
+                { q: "Elegimos un número al azar entre 1 y 100. ¿P(Que sea estrictamente menor que 101)?", a: ["1", "0.99", "0.50", "0"], c: 0 },
+                { q: "Si la probabilidad de que Fezzik gane un pulso es 0.95, ¿P(Que pierda dicho combate)?", a: ["0.95", "0.05", "0.50", "0.10"], c: 1 },
+                { q: "Lanzamos un dado de 6 caras. ¿P(Obtener un número múltiplo de 3)?", a: ["1/6", "1/2", "1/3", "2/3"], c: 2 },
+                { q: "Si P(A) = 0.4 y P(A ∪ B) = 0.4 siendo incompatibles, ¿cuánto vale P(B) obligatoriamente?", a: ["0.4", "0.8", "1", "0"], c: 3 },
+                { q: "En una clase de 30 alumnos, 18 aprueban Matemáticas. Elegimos uno al azar. ¿P(Suspender)?", a: ["0.4", "0.6", "0.5", "0.3"], c: 0 },
+                { q: "Lanzamos dos monedas normales. ¿P(Obtener dos cruces en la tirada)?", a: ["1/2", "1/4", "3/4", "1/8"], c: 1 },
+                { q: "Se extrae una bola de una urna que contiene únicamente 8 bolas rojas. ¿P(Sacar una roja)?", a: ["0.8", "0.5", "1", "0"], c: 2 },
+                { q: "Se lanza una moneda normal y equilibrada de 2 caras. ¿P(Obtener cara)?", a: ["0.25", "1", "0", "0.5"], c: 3 },
+                { q: "Elegimos un día de la semana al azar. ¿P(Que su nombre empiece por la letra M)?", a: ["2/7", "1/7", "3/7", "5/7"], c: 0 },
+                { q: "¿P(Que al lanzar un dado de 6 caras clásico salga un número diferente a 6)?", a: ["1/6", "5/6", "1/2", "1"], c: 1 },
+                { q: "En una estantería hay 40 libros de Álgebra y 60 de Probabilidad. Elegimos uno. ¿P(Álgebra)?", a: ["0.6", "0.45", "0.40", "0.5"], c: 2 },
+                { q: "Si P(A) = 0 en un experimento aleatorio bien definido, se dice que el suceso A es...", a: ["Seguro", "Independiente", "Elemental", "Imposible"], c: 3 },
+                { q: "Un dado de 6 caras tiene las caras numeradas del 1 al 6. ¿P(Sacar un número menor que 2)?", a: ["1/6", "1/3", "1/2", "0"], c: 0 },
+                { q: "Lanzamos tres monedas al aire. ¿Cuántos casos favorables hay para obtener exactamente dos caras?", a: ["1", "3", "2", "4"], c: 1 },
+                { q: "Si extraemos una carta de una baraja de 40, ¿P(Sacar una de las figuras de bastos)?", a: ["4/40", "1/10", "3/40", "10/40"], c: 2 },
+                { q: "Elegimos un número entero al azar del 1 al 10. ¿P(Que el número elegido sea impar)?", a: ["0.4", "0.6", "0.2", "0.5"], c: 3 },
+                { q: "Si P(A) = 0.7, ¿cuánto vale matemáticamente la probabilidad de su suceso contrario?", a: ["0.3", "0.7", "0.5", "0"], c: 0 },
+                { q: "Un suceso elemental es aquel que matemáticamente se caracteriza por...", a: ["No tener resultados", "Tener un único resultado simple", "Tiene dos o más resultados", "Siempre ocurre"], c: 1 },
+                { q: "En un estuche hay 3 bolígrafos azules, 2 negros y 1 rojo. Elegimos uno al azar. ¿P(Azul)?", a: ["0.33", "0.16", "0.5", "0.6"], c: 2 },
+                { q: "Si lanzamos un dado regular de 6 caras, ¿P(Obtener un número par menor que 5)?", a: ["1/2", "2/3", "1/6", "1/3"], c: 3 },
+                { q: "Se baraja un mazo de 40 cartas y se extrae una. ¿P(Que sea un As o un Rey)?", a: ["8/40", "4/40", "2/40", "10/40"], c: 0 },
+                { q: "La suma de las probabilidades de un suceso A y de su suceso contrario es siempre...", a: ["0", "1", "0.5", "Depende de A"], c: 1 },
+                { q: "Elegimos un mes del año de forma equiprobable. ¿P(Que sea el mes de Febrero)?", a: ["1/10", "1/365", "1/12", "1/7"], c: 2 },
+                { q: "Lanzamos dos dados clásicos de 6 caras. ¿P(Obtener una suma de puntuaciones igual a 2)?", a: ["1/12", "1/6", "2/36", "1/36"], c: 3 },
+                { q: "Si P(A) = 0.15, ¿cuál es el valor de la probabilidad de su complementario?", a: ["0.85", "0.15", "0.50", "0.75"], c: 0 },
+                { q: "En un árbol de probabilidad clásica, la suma de las ramas que parten de un mismo nudo es...", a: ["0.5", "1", "0", "100"], c: 1 },
+                { q: "Si un suceso A está contenido dentro del suceso B, entonces se cumple que...", a: ["P(A) ≥ P(B)", "P(A) = P(B)", "P(A) ≤ P(B)", "P(A) + P(B) = 1"], c: 2 },
+                { q: "Elegimos un número al azar del 1 al 50. ¿P(Que sea un múltiplo de 10)?", a: ["0.2", "0.5", "0.05", "0.1"], c: 3 },
+                { q: "Lanzamos tres monedas normales. ¿P(Sacar al menos una cruz en la tirada)?", a: ["7/8", "1/8", "1/2", "3/4"], c: 0 },
+                { q: "Un suceso compuesto es aquel que está definido matemáticamente por...", a: ["Solo un suceso elemental", "Dos o más sucesos elementales", "Ningún suceso posible", "El espacio muestral completo"], c: 1 },
+                { q: "De una baraja de 40 cartas, se extrae una. ¿P(Que sea de copas o de espadas)?", a: ["10/40", "20/40", "30/40", "1/4"], c: 1 },
+                { q: "Si la probabilidad de encontrar el milagro de Max es 0.01, ¿P(No encontrarlo)?", a: ["0.01", "0.50", "0.99", "0.90"], c: 2 },
+                { q: "Si lanzamos una moneda 10.000 veces, la frecuencia relativa de caras tenderá según la ley a...", a: ["1", "0", "0.25", "0.5"], c: 3 },
+                { q: "Elegimos una letra de la palabra 'MATEMATICAS' al azar. ¿P(Que sea la letra M)?", a: ["2/11", "1/11", "3/11", "2/10"], c: 0 },
+                { q: "Se lanza un dado de 6 caras regular. ¿P(Obtener un número impar)?", a: ["0.33", "0.5", "0.66", "1"], c: 1 },
+                { q: "Elegimos una vocal de la palabra 'PROBABILIDAD'. ¿P(Que sea la letra I)?", a: ["1/5", "3/5", "2/5", "2/12"], c: 2 },
+                { q: "Se extrae una carta de una baraja española de 40. ¿P(No sacar una carta de oros)?", a: ["10/40", "20/40", "3/40", "30/40"], c: 3 },
+                { q: "Si P(A) = 0.6 y A y B son incompatibles, ¿cuál es el valor máximo teórico que puede tener P(B)?", a: ["0.4", "0.6", "1.0", "0.0"], c: 0 },
+                { q: "Si lanzamos un dado clásico, ¿P(Que salga un número mayor que 4)?", a: ["1/2", "1/3", "2/3", "1/6"], c: 1 },
+                { q: "La probabilidad de un suceso en cualquier experimento real siempre está comprendida entre...", a: ["-1 y 1", "0 y 100", "0 y 1", "Cualquier número real"], c: 2 },
+                { q: "Un suceso imposible es aquel que matemáticamente se caracteriza por...", a: ["Tener una probabilidad muy baja", "Ocurre a veces bajo condiciones", "Siempre tiene probabilidad de 0.1", "No puede ocurrir nunca en el experimento"], c: 3 },
+                { q: "Lanzamos dos dados tradicionales. ¿P(Que la suma de sus puntuaciones sea menor que 13)?", a: ["1", "0", "11/12", "35/36"], c: 0 },
+                { q: "En una urna hay 3 bolas rojas y 2 verdes. Extraemos una al azar. ¿P(Sacar roja)?", a: ["2/5", "3/5", "1/2", "1/5"], c: 1 },
+                { q: "Si un jugador del pulsador tiene P(Ganar ronda) = 0.4, ¿P(No ganar la ronda)?", a: ["0.4", "0.5", "0.6", "0"], c: 2 },
+                { q: "Se lanza un dado de 6 caras. ¿P(Obtener un número que sea un cuadrado perfecto)?", a: ["1/6", "1/2", "2/3", "1/3"], c: 3 },
+                { q: "Lanzamos un dado clásico. ¿P(Obtener un número mayor que 1 en la cara superior)?", a: ["5/6", "1/6", "1/2", "1"], c: 0 },
+                { q: "La probabilidad clásica se define empíricamente mediante el límite de la...", a: ["Frecuencia absoluta", "Frecuencia relativa", "Moda estadística", "Media aritmética"], c: 1 }
             ],
             facil: [
                 { q: "Si A y B son sucesos incompatibles, ¿cuánto vale la probabilidad de su unión P(A ∪ B)?", a: ["P(A) + P(B)", "P(A) · P(B)", "0", "1"], c: 0 },
-                { q: "Dados P(A) = 0.4 y P(B) = 0.3. Si son independientes, ¿cuánto vale P(A ∩ B)?", a: ["0.12", "0.70", "0.10", "0.50"], c: 0 },
-                { q: "La probabilidad de que Buttercup salte de la barca es 0.6. ¿Cuál es la probabilidad de que NO salte?", a: ["0.4", "0.6", "0.1", "0.0"], c: 0 },
-                { q: "Fezzik elige un número entero del 1 al 10. ¿Probabilidad de que sea un número primo?", a: ["4/10", "3/10", "5/10", "2/10"], c: 0 },
-                { q: "Se sabe que P(A) = 0.3, P(B) = 0.5 y P(A ∩ B) = 0.1. Calcula la probabilidad de la unión P(A ∪ B).", a: ["0.7", "0.8", "0.9", "0.6"], c: 0 }
+                { q: "Dados P(A) = 0.4 y P(B) = 0.3. Si son independientes, ¿cuánto vale P(A ∩ B)?", a: ["0.70", "0.12", "0.10", "0.50"], c: 1 },
+                { q: "La probabilidad de que Buttercup escape de los piratas es 0.6. ¿Cuál es la probabilidad de que no escape?", a: ["0.6", "0.1", "0.4", "0.0"], c: 2 },
+                { q: "Fezzik elige un número entero del 1 al 10. ¿Probabilidad de que sea un número primo?", a: ["3/10", "5/10", "2/10", "4/10"], c: 3 },
+                { q: "Se sabe que P(A) = 0.3, P(B) = 0.5 y P(A ∩ B) = 0.1. Calcula la probabilidad de la unión P(A ∪ B).", a: ["0.7", "0.8", "0.9", "0.6"], c: 0 },
+                { q: "Si P(A) = 0.6, calcula la probabilidad del suceso contrario de A.", a: ["0.6", "0.4", "-0.6", "1.6"], c: 1 },
+                { q: "Sean A y B dos sucesos tales que P(A) = 0.3 y P(B) = 0.4. Si son independientes, ¿cuánto vale P(A|B)?", a: ["0.4", "0.12", "0.3", "0.7"], c: 2 },
+                { q: "Sabiendo que P(A ∩ B) = 0.2 y P(B) = 0.5, calcula la probabilidad condicionada P(A|B).", a: ["0.25", "0.10", "0.70", "0.4"], c: 3 },
+                { q: "Si la probabilidad de un suceso A es 0.25, ¿cuál es la probabilidad del suceso contrario?", a: ["0.75", "0.25", "0.50", "1"], c: 0 },
+                { q: "En un experimento aleatorio, ¿cuál es la probabilidad del espacio muestral completo E?", a: ["0", "1", "100", "0.5"], c: 1 },
+                { q: "Calcula P(A ∪ B) si P(A) = 0.5, P(B) = 0.4 y P(A ∩ B) = 0.2.", a: ["0.9", "0.3", "0.7", "0.5"], c: 2 },
+                { q: "Si A y B son sucesos independientes con P(A) = 0.2 y P(B) = 0.6, calcula P(A ∪ B).", a: ["0.80", "0.12", "0.50", "0.68"], c: 3 },
+                { q: "Sabiendo que P(A) = 0.4 y P(B|A) = 0.3, calcula la probabilidad de la intersección P(A ∩ B).", a: ["0.12", "0.70", "0.40", "0.30"], c: 0 },
+                { q: "Si P(A) = 0.7 y P(B) = 0.2, y son independientes, ¿cuánto vale la intersección de sus contrarios?", a: ["0.14", "0.24", "0.06", "0.90"], c: 1 },
+                { q: "Si dos sucesos son independientes, se cumple matemáticamente que...", a: ["P(A ∩ B) = 0", "P(A ∪ B) = P(A) + P(B)", "P(A ∩ B) = P(A) · P(B)", "P(A|B) = P(B)"], c: 2 },
+                { q: "Calcula P(B) si P(A) = 0.3, P(A ∪ B) = 0.8 y los sucesos son incompatibles.", a: ["0.3", "0.8", "1.1", "0.5"], c: 3 },
+                { q: "Si P(A) = 0.5, ¿cuánto vale la probabilidad de la intersección de A con su suceso contrario?", a: ["0", "0.25", "0.5", "1"], c: 0 },
+                { q: "Sabiendo que P(A) = 0.6 and P(A ∩ B) = 0.3, calcula la probabilidad condicionada P(B|A).", a: ["0.18", "0.5", "0.9", "0.3"], c: 1 },
+                { q: "La probabilidad de que Westley falle un disparo de ballesta es 0.05. ¿Probabilidad de que acierte?", a: ["0.05", "0.50", "0.95", "1.00"], c: 2 },
+                { q: "En un sorteo de Florín, la probabilidad de ganar el premio es 0.02. ¿Probabilidad de no ganarlo?", a: ["0.02", "0.50", "0.90", "0.98"], c: 3 },
+                { q: "Sean P(A) = 0.5 y P(B) = 0.5. Si P(A ∪ B) = 0.8, ¿cuánto vale P(A ∩ B)?", a: ["0.2", "0.8", "0.5", "0.1"], c: 0 },
+                { q: "Si P(A) = 0.7 y P(B) = 0.5, ¿pueden ser sucesos mutuamente incompatibles?", a: ["Sí, siempre", "No, porque su suma supera la probabilidad total de 1", "Sí, si son independientes", "Depende del experimento"], c: 1 },
+                { q: "Si la probabilidad de que Íñigo gane un combate es 0.8 y la de Fezzik es 0.9 (independientes), ¿P(Que ganen ambos)?", a: ["1.70", "0.85", "0.72", "0.10"], c: 2 },
+                { q: "Calcula la probabilidad del suceso contrario de la unión de dos sucesos incompatibles A y B con P(A) = 0.2 y P(B) = 0.5.", a: ["0.7", "0.1", "0.8", "0.3"], c: 3 },
+                { q: "Sabiendo que P(A) = 0.4 y P(A ∩ B) = 0.2, calcula la probabilidad condicionada P(B|A).", a: ["0.5", "0.2", "0.8", "0.08"], c: 0 },
+                { q: "Si P(A) = 0.35, calcula la probabilidad de que no ocurra el suceso A.", a: ["0.35", "0.65", "1.35", "0.50"], c: 1 },
+                { q: "Para dos sucesos cualesquiera, la ley de De Morgan afirma que el contrario de (A ∪ B) es...", a: ["Contrario de A ∪ Contrario de B", "Contrario de A ∩ Contrario de B", "A ∩ B", "Contrario de (A ∩ B)"], c: 2 },
+                { q: "La probabilidad de comprar pan es 0.6, y pasteles es 0.3. Si son independientes, ¿P(Comprar ambos)?", a: ["0.90", "0.30", "0.45", "0.18"], c: 3 },
+                { q: "Sabiendo que P(A) = 0.8 y P(B) = 0.2, y que son independientes, ¿cuánto vale P(A ∪ B)?", a: ["0.84", "1.00", "0.16", "0.64"], c: 0 },
+                { q: "Si P(A) = 0.5 y P(B) = 0.4, y la intersección es P(A ∩ B) = 0.1, calcula P(A|B).", a: ["0.20", "0.25", "0.50", "0.10"], c: 1 },
+                { q: "Si P(A) = 0.3 y P(B) = 0.4, ¿cuánto vale la probabilidad de la unión de A y B si son independientes?", a: ["0.70", "0.12", "0.58", "0.46"], c: 2 },
+                { q: "Sabiendo que P(A) = 0.4, P(B) = 0.5 y P(A ∪ B) = 0.7, ¿son independientes A y B?", a: ["No, porque no son incompatibles", "No, porque P(A ∩ B) = 0.1", "Sí, porque su unión es menor que 1", "Sí, porque P(A ∩ B) = 0.2 = P(A)·P(B)"], c: 3 },
+                { q: "¿Cuál es la probabilidad de que al lanzar un dado regular no salga ni un 1 ni un 6?", a: ["4/6", "2/6", "5/6", "1/2"], c: 0 },
+                { q: "Si P(A) = 0.6 y P(B|A) = 0.5, calcula P(A ∩ B).", a: ["0.1", "0.3", "0.11", "0.83"], c: 1 },
+                { q: "En un examen de 2 preguntas, un alumno tiene probabilidad 0.6 de acertar la primera y 0.5 la segunda (independientes). ¿P(Acertar ambas)?", a: ["1.1", "0.1", "0.3", "0.5"], c: 2 },
+                { q: "Sabiendo que P(A ∩ B) = 0.15 y P(A) = 0.30, calcula la probabilidad de B condicionada a A.", a: ["0.45", "0.10", "0.15", "0.5"], c: 3 },
+                { q: "La probabilidad de que una flecha dé en el blanco es 0.8. Si lanza dos flechas independientes, ¿P(Dar con ambas)?", a: ["0.64", "1.60", "0.80", "0.20"], c: 0 },
+                { q: "Si P(A) = 0.25 y P(B) = 0.75, y son incompatibles, ¿cuál es la probabilidad de que ocurra al menos uno?", a: ["0.75", "1", "0.25", "0.5"], c: 1 },
+                { q: "Si P(A) = 0.3 y P(B) = 0.5, siendo incompatibles, calcula la probabilidad de que no ocurra ninguno.", a: ["0.8", "0.15", "0.2", "0.5"], c: 2 },
+                { q: "Sabiendo que P(A) = 0.7 y P(B) = 0.3, y que son independientes, calcula P(A ∩ contr(B)).", a: ["0.21", "0.70", "0.30", "0.49"], c: 3 },
+                { q: "Si P(A ∩ B) = 0.08 y P(B) = 0.40, calcula la probabilidad condicionada P(A|B).", a: ["0.2", "0.48", "0.32", "0.10"], c: 0 },
+                { q: "Calcula P(A ∪ B) si P(A) = 0.6, P(B) = 0.5 y son independientes de forma clara.", a: ["1.1", "0.8", "0.3", "0.9"], c: 1 },
+                { q: "Si la probabilidad de que ocurra A es P(A) = 0.45, ¿cuál es la probabilidad de su contrario?", a: ["0.45", "0.05", "0.55", "1.45"], c: 2 },
+                { q: "Si P(A) = 0.5 y P(B) = 0.3, ¿cuánto vale la diferencia P(A) - P(A ∩ B) si son independientes?", a: ["0.15", "0.20", "0.50", "0.35"], c: 3 },
+                { q: "En un dado trucado, P(1)=P(2)=P(3)=0.1 y P(4)=P(5)=P(6)=x. ¿Cuánto vale x?", a: ["0.233", "0.1", "0.3", "0.7"], c: 0 },
+                { q: "Sabiendo que P(A) = 0.25 y P(B) = 0.40, si son independientes, calcula la probabilidad de su unión.", a: ["0.65", "0.55", "0.10", "0.45"], c: 1 },
+                { q: "Si P(A ∩ B) = 0.25, ¿cuál es el valor mínimo posible que puede tomar la probabilidad P(A)?", a: ["0", "0.50", "0.25", "1.00"], c: 2 },
+                { q: "Si P(A) = 0.5, P(B) = 0.5 y son independientes, ¿cuánto vale P(A ∩ contr(B))?", a: ["0.50", "0", "0.75", "0.25"], c: 3 },
+                { q: "Para dos sucesos independientes A y B, ¿cuál de las siguientes afirmaciones es matemáticamente correcta?", a: ["P(A|B) = P(A)", "P(A ∩ B) = 0", "P(A ∪ B) = P(A) + P(B)", "P(B|A) = P(A)"], c: 0 },
+                { q: "Si P(A) = 0.4, P(B) = 0.3 y P(A ∩ B) = 0.1, calcula P(B ∩ contr(A)).", a: ["0.3", "0.2", "0.1", "0.4"], c: 1 },
+                { q: "Si P(A) = 0.6 y P(B) = 0.2, y son independientes, calcula P(contr(A) ∩ contr(B)).", a: ["0.12", "0.48", "0.32", "0.08"], c: 2 },
+                { q: "En una urna hay 4 bolas verdes y 6 rojas. Extraemos una bola. ¿P(Roja)?", a: ["0.4", "0.2", "0.5", "0.6"], c: 3 },
+                { q: "La probabilidad de que un arquero dé en la diana es 0.7. ¿P(Que falle el tiro)?", a: ["0.3", "0.7", "0.5", "0.0"], c: 0 },
+                { q: "Si un suceso tiene probabilidad 1, entonces su suceso contrario es...", a: ["Incompatible", "El suceso imposible", "Seguro", "Elemental"], c: 1 },
+                { q: "Lanzamos dos monedas. ¿P(Obtener dos caras)?", a: ["1/2", "3/4", "1/4", "1/8"], c: 2 },
+                { q: "Sabiendo que P(A ∪ B) = 0.9, P(A) = 0.6 y P(B) = 0.5, calcula P(A ∩ B).", a: ["0.1", "0.3", "0.2", "0.4"], c: 2 },
+                { q: "En una baraja de 40 cartas, ¿P(Sacar una carta que sea espada)?", a: ["1/10", "1/40", "4/40", "1/4"], c: 3 },
+                { q: "Si la probabilidad de que Íñigo acierte su estocada es 0.8, ¿P(Falle la estocada)?", a: ["0.2", "0.8", "0.5", "0"], c: 0 },
+                { q: "Calcula P(A ∩ B) si P(A) = 0.5, P(B) = 0.5 y son independientes.", a: ["0.5", "0.25", "0", "1"], c: 1 },
+                { q: "Si P(A) = 0.2, ¿cuál es la probabilidad del contrario de A?", a: ["0.2", "0.5", "0.8", "0.0"], c: 2 },
+                { q: "Si dos sucesos A y B cumplen que P(A ∩ B) = 0.1, se deduce que son...", a: ["Incompatibles", "Independientes", "Seguros", "Compatibles"], c: 3 },
+                { q: "Se lanza una moneda y un dado de 6 caras. ¿P(Cara y número 6)?", a: ["1/12", "1/6", "1/2", "1/4"], c: 0 },
+                { q: "Sabiendo que P(A) = 0.7, P(B) = 0.4 y P(A ∪ B) = 0.9, calcula P(A ∩ B).", a: ["0.1", "0.2", "0.3", "0.4"], c: 1 },
+                { q: "Si la probabilidad de que una poción sea curativa es 0.7, ¿P(No sea curativa)?", a: ["0.7", "0.5", "0.3", "0"], c: 2 },
+                { q: "En una caja hay 10 esferas de colores: 3 azules, 2 rojas y 5 blancas. ¿P(No roja)?", a: ["0.2", "0.5", "0.3", "0.8"], c: 3 },
+                { q: "Lanzamos tres monedas normales. ¿P(Obtener al menos una cara)?", a: ["7/8", "1/8", "1/2", "3/4"], c: 0 },
+                { q: "Si P(A) = 0.5, P(B) = 0.3 y son incompatibles, calcula P(A ∪ B).", a: ["0.5", "0.8", "0.15", "0.2"], c: 1 },
+                { q: "De un mazo de 40 cartas se extrae una. ¿P(Que sea una figura o un oros)?", a: ["12/40", "10/40", "19/40", "22/40"], c: 2 },
+                { q: "Sabiendo que P(A ∩ B) = 0.10 y P(A) = 0.50, calcula P(B|A).", a: ["0.50", "0.10", "0.05", "0.20"], c: 3 },
+                { q: "Si P(A) = 0.30 y P(B) = 0.70 siendo independientes, ¿cuánto vale P(A ∩ B)?", a: ["0.21", "1.00", "0.40", "0.50"], c: 0 },
+                { q: "Elegimos un número al azar del 1 al 20. ¿P(Que sea divisible por 3)?", a: ["5/20", "6/20", "3/20", "4/20"], c: 1 },
+                { q: "Si P(A) = 0.8, ¿cuál es el valor de la probabilidad de su complementario?", a: ["0.8", "0.5", "0.2", "0"], c: 2 },
+                { q: "En una urna hay 3 bolas negras y 3 blancas. Extraemos una al azar. ¿P(Blanca)?", a: ["0.25", "1", "0", "0.5"], c: 3 },
+                { q: "Si A y B son sucesos incompatibles con P(A) = 0.3 y P(B) = 0.4, calcula P(A ∩ B).", a: ["0", "0.12", "0.7", "0.1"], c: 0 },
+                { q: "Lanzamos dos dados clásicos. ¿P(Que la suma de las caras sea igual a 3)?", a: ["1/36", "2/36", "1/12", "1/6"], c: 1 },
+                { q: "Si la probabilidad de que Fezzik lance una roca y acierte es 0.9, ¿P(Que falle)?", a: ["0.9", "0.5", "0.1", "0"], c: 2 },
+                { q: "Un dado está trucado de forma que la probabilidad de obtener impar es 0.4. ¿P(Par)?", a: ["0.4", "0.5", "0.2", "0.6"], c: 3 },
+                { q: "Se extrae una carta de una baraja de 40 cartas. ¿P(Que sea una Sota)?", a: ["4/40", "1/40", "10/40", "12/40"], c: 0 },
+                { q: "Si P(A) = 0.25, P(B) = 0.50 y son independientes, calcula P(A ∪ B).", a: ["0.75", "0.625", "0.125", "0.50"], c: 1 },
+                { q: "La probabilidad de que una espada esté afilada es 0.8. ¿P(No esté afilada)?", a: ["0.8", "0.5", "0.2", "0"], c: 2 },
+                { q: "En una baraja española, ¿P(Sacar el Caballo de Bastos)?", a: ["4/40", "10/40", "1/4", "1/40"], c: 3 },
+                { q: "Lanzamos dos dados clásicos. ¿P(Que la suma de sus caras sea exactamente 12)?", a: ["1/36", "1/18", "1/12", "1/6"], c: 0 },
+                { q: "Sabiendo que P(A) = 0.6 y P(B) = 0.3 siendo independientes, calcula P(A ∩ contr(B)).", a: ["0.18", "0.42", "0.28", "0.12"], c: 1 },
+                { q: "Se lanzan tres monedas al aire. ¿P(Obtener exactamente dos cruces)?", a: ["1/8", "1/4", "3/8", "1/2"], c: 2 },
+                { q: "Si P(A) = 0.45, P(B) = 0.35 y son incompatibles, calcula P(A ∪ B).", a: ["0.10", "0.15", "0.70", "0.80"], c: 3 },
+                { q: "En una clase de 25 alumnos, 15 prefieren Ciencias. ¿P(Elegir uno de Letras)?", a: ["0.4", "0.6", "0.5", "0.3"], c: 0 },
+                { q: "Si la probabilidad de que una manzana esté envenenada es 0.05, ¿P(No envenenada)?", a: ["0.05", "0.95", "0.50", "0.90"], c: 1 },
+                { q: "Lanzamos un dado regular de 6 caras. ¿P(Obtener un número múltiplo de 2)?", a: ["1/3", "1/6", "1/2", "2/3"], c: 2 },
+                { q: "Sabiendo que P(A ∩ B) = 0.25 y P(B) = 0.50, calcula P(A|B).", a: ["0.25", "0.125", "0.75", "0.5"], c: 3 },
+                { q: "Si P(A) = 0.1 y P(B) = 0.9 siendo independientes, calcula P(A ∩ B).", a: ["0.09", "1.00", "0.10", "0.80"], c: 0 },
+                { q: "Se extrae una carta de una baraja de 40. ¿P(Sacar una carta que sea un As)?", a: ["1/40", "1/10", "4/40", "1/4"], c: 1 },
+                { q: "La probabilidad de que haga sol en los acantilados es 0.4. ¿P(Que no haga sol)?", a: ["0.4", "0.5", "0.6", "0"], c: 2 },
+                { q: "Si P(A ∪ B) = P(A) + P(B) para dos sucesos A y B, esto implica que...", a: ["Son independientes", "Uno es el contrario del otro", "Son seguros", "Son incompatibles"], c: 3 },
+                { q: "Lanzamos dos monedas. ¿P(Obtener al menos una cara)?", a: ["3/4", "1/2", "1/4", "1"], c: 0 },
+                { q: "Sabiendo que P(A) = 0.5 y P(B) = 0.5 siendo independientes, calcula P(A ∪ B).", a: ["0.5", "0.75", "0.25", "1"], c: 1 },
+                { q: "En una bolsa hay 5 canicas azules y 5 rojas. Elegimos dos con reemplazo. ¿P(Ambas rojas)?", a: ["0.50", "0.10", "0.25", "0.75"], c: 2 },
+                { q: "Si P(A) = 0.35, calcula la probabilidad de que no ocurra el suceso contrario de A.", a: ["0.65", "0.50", "0.00", "0.35"], c: 3 }
             ],
             medio: [
                 { q: "Una variable Binomial sigue el modelo X ~ B(10; 0.2). ¿Cuál es su media o esperanza matemática?", a: ["2", "8", "0.2", "10"], c: 0 },
-                { q: "En los Acantilados de la Locura se registran una media de 3 caídas por año. Según el modelo de Poisson, ¿su varianza es?", a: ["3", "9", "1.5", "1"], c: 0 },
-                { q: "Sabiendo que P(A|B) = 0.5 y P(B) = 0.4, calcula el valor de la intersección P(A ∩ B).", a: ["0.2", "0.9", "0.1", "0.8"], c: 0 },
-                { q: "En el foso de Humperdinck, el 60% de los guardias son espadachines y el 40% arqueros. El 10% de los espadachines duerme. ¿P(Guardia Espadachín y Durmiendo)?", a: ["0.06", "0.60", "0.10", "0.16"], c: 0 },
-                { q: "Lanzamos un dado de 6 caras. Sabiendo que ha salido un número par, ¿probabilidad de que sea el número 2?", a: ["1/3", "1/6", "1/2", "2/3"], c: 0 }
+                { q: "En los Acantilados de la Locura se registran una media de 3 caídas por año. Según el modelo de Poisson, ¿su varianza es?", a: ["9", "3", "1.5", "1"], c: 1 },
+                { q: "Sabiendo que P(A|B) = 0.5 y P(B) = 0.4, calcula el valor de la intersección P(A ∩ B).", a: ["0.9", "0.1", "0.2", "0.8"], c: 2 },
+                { q: "En el foso, el 60% son espadachines y el 40% arqueros. El 10% de espadachines duerme. ¿P(Espadachín y Durmiendo)?", a: ["0.60", "0.10", "0.16", "0.06"], c: 3 },
+                { q: "Lanzamos un dado de 6 caras. Sabiendo que ha salido un número par, ¿probabilidad de que sea el número 2?", a: ["1/3", "1/6", "1/2", "2/3"], c: 0 },
+                { q: "Una Binomial tiene parámetros n = 4 y p = 0.5. ¿Cuál es el valor de su desviación típica?", a: ["2", "1", "0.5", "1.41"], c: 1 },
+                { q: "Si X sigue una distribución de Poisson con parámetro λ = 4, ¿cuál es su desviación típica?", a: ["4", "16", "2", "1"], c: 2 },
+                { q: "Una variable aleatoria continua X sigue una Normal N(10, 2). ¿Cuál es el valor de su media?", a: ["2", "5", "1", "10"], c: 3 },
+                { q: "Si X ~ B(5; 0.3), ¿cuánto vale la probabilidad de que la variable X tome un valor de 0: P(X = 0)?", a: ["0.1681", "0.3600", "0.0300", "0.0024"], c: 0 },
+                { q: "En una Poisson de media λ = 2, ¿cuál es la probabilidad exacta de que ocurra cero eventos P(X = 0)?", a: ["e^(-2)", "2 · e^(-2)", "e^2", "1"], c: 0 },
+                { q: "Una Normal N(μ, σ) se dice que es estándar o tipificada si sus parámetros cumplen que...", a: ["μ = 1, σ = 0", "μ = 0, σ = 1", "μ = 0, σ = 0", "μ = 1, σ = 1"], c: 1 },
+                { q: "Si lanzamos una moneda equilibrada 6 veces, ¿cuál es la probabilidad de obtener exactamente 3 caras?", a: ["5/16", "20/64", "1/2", "3/64"], c: 1 },
+                { q: "La probabilidad de que una planta sobreviva es 0.8. Si plantamos 5 plantas independientes, ¿P(Que sobrevivan las 5)?", a: ["0.80", "0.40", "0.3277", "0.0032"], c: 2 },
+                { q: "Sabiendo que X ~ B(100; 0.1), calcula la varianza de dicha distribución binomial.", a: ["10", "100", "1", "9"], c: 3 },
+                { q: "En una distribución de Poisson con media λ = 1, calcula el valor de P(X = 1).", a: ["e^(-1)", "e", "1", "0.5"], c: 0 },
+                { q: "Si X sigue una Normal N(50, 5), ¿cuál es el valor de la varianza de esta distribución?", a: ["5", "25", "50", "2.23"], c: 1 },
+                { q: "Si realizamos un experimento binomial con n = 8 y p = 0.25, ¿cuál es su media o esperanza?", a: ["4", "0.25", "2", "1.5"], c: 2 },
+                { q: "La probabilidad de que un cliente compre es 0.1. Si entran 10 clientes, ¿P(De que compre exactamente 1)?", a: ["0.10", "0.35", "0.20", "0.3874"], c: 3 },
+                { q: "Para una distribución Poisson con λ = 3, ¿cuál es la varianza matemática?", a: ["3", "9", "1.5", "1"], c: 0 },
+                { q: "Si X ~ B(6; 0.5), ¿cuánto vale la probabilidad de que X sea exactamente igual a 6?", a: ["1/6", "1/64", "1/2", "6/64"], c: 1 },
+                { q: "Sabiendo que X ~ N(100, 16), la desviación típica de la variable X es igual a...", a: ["16", "10", "4", "256"], c: 2 },
+                { q: "En una Binomial X ~ B(n, p), la probabilidad del fracaso se suele denotar como q y vale...", a: ["1 + p", "p", "0.5", "1 - p"], c: 3 },
+                { q: "Si un canal recibe una media de 2 mensajes por minuto (Poisson), ¿cuál es la probabilidad de recibir 1 mensaje en un minuto?", a: ["2e^(-2)", "e^(-2)", "0.5", "2"], c: 0 },
+                { q: "Para una variable Normal tipificada Z ~ N(0, 1), ¿cuánto vale la probabilidad P(Z < 0)?", a: ["0", "0.5", "1", "-0.5"], c: 1 },
+                { q: "Si X ~ B(12; 0.5), ¿cuál es el valor de su media aritmética?", a: ["12", "3", "6", "1.5"], c: 2 },
+                { q: "Una variable de Poisson tiene desviación típica igual a 3. ¿Cuál es su media λ?", a: ["3", "1.5", "1.73", "9"], c: 3 },
+                { q: "Si X es una Binomial B(20, 0.1), ¿cuál es la varianza de la distribución?", a: ["1.8", "2", "0.18", "1.34"], c: 0 },
+                { q: "En una Normal N(150, 10), el valor tipificado correspondiente a X = 160 es exactamente...", a: ["10", "1", "0", "1.5"], c: 1 },
+                { q: "Si la probabilidad de éxito de un suceso es p = 0.2, ¿cuál es el mínimo número de pruebas n para que la media sea mayor o igual a 10?", a: ["20", "10", "50", "100"], c: 2 },
+                { q: "Para una Poisson con λ = 5, ¿cuál es el valor del parámetro que representa a la media de eventos?", a: ["2.23", "25", "1", "5"], c: 3 },
+                { q: "Si X ~ B(10, p) y su media es 4, ¿cuál es el valor de la probabilidad de éxito p?", a: ["0.4", "0.6", "0.25", "4"], c: 0 },
+                { q: "En una Normal tipificada Z ~ N(0, 1), ¿cuál es la probabilidad exacta de P(Z > 0)?", a: ["0", "0.5", "1", "0.25"], c: 1 },
+                { q: "Una variable de Poisson tiene media λ = 0.5. ¿Cuál es la probabilidad de que X = 0?", a: ["0.5", "0.368", "e^(-0.5)", "0"], c: 2 },
+                { q: "Si X ~ B(15; 0.4), ¿cuál es su desviación típica redondeada a dos decimales?", a: ["1.89", "6", "3.6", "2.4"], c: 3 },
+                { q: "Para una Normal N(100, 15), ¿cuál es el intervalo en el que se encuentra aproximadamente el 68.26% de los datos?", a: ["(85, 115)", "(70, 130)", "(55, 145)", "(100, 115)"], c: 0 },
+                { q: "Si una variable de Poisson tiene varianza 16, ¿cuál es su desviación típica?", a: ["16", "4", "2", "8"], c: 1 },
+                { q: "Si X ~ B(8; 0.5), calcula la probabilidad de que X sea exactamente igual a 4.", a: ["1/2", "35/256", "70/256", "56/256"], c: 2 },
+                { q: "Si Z es una distribución Normal estándar, calcula el valor aproximado de P(Z < 1.96).", a: ["0.5000", "0.9500", "0.9000", "0.9750"], c: 3 },
+                { q: "En una Poisson de media λ = 1, ¿cuál es la probabilidad de que X sea mayor o igual que 1?", a: ["1 - e^(-1)", "e^(-1)", "1 - e", "0.5"], c: 0 },
+                { q: "Si X ~ B(50, 0.2), ¿cuál es la media de esta variable binomial?", a: ["50", "10", "40", "8"], c: 1 },
+                { q: "En una Normal N(50, 10), ¿qué valor de X corresponde a un valor tipificado Z = 2?", a: ["50", "60", "70", "80"], c: 2 },
+                { q: "Para una distribución Poisson con λ = 4, calcula la probabilidad de P(X = 1).", a: ["e^(-4)", "2e^(-4)", "3e^(-4)", "4e^(-4)"], c: 3 },
+                { q: "Si X ~ B(8, 0.3), ¿cuál es la varianza de esta distribución?", a: ["1.68", "2.40", "1.20", "1.30"], c: 0 },
+                { q: "Para una variable Normal N(0, 1), ¿cuánto vale la probabilidad acumulada P(Z ≤ 1.64)?", a: ["0.50", "0.95", "0.90", "0.975"], c: 1 },
+                { q: "En una Poisson con λ = 6, ¿cuál es la varianza de la distribución?", a: ["36", "2.45", "6", "1"], c: 2 },
+                { q: "Si X es una Binomial B(10; 0.5), ¿cuál es su desviación típica aproximada?", a: ["2.5", "5.0", "1.25", "1.58"], c: 3 },
+                { q: "Para una Normal N(80, 5), ¿cuál es el valor de X que tiene una tipificación Z = -1?", a: ["75", "85", "80", "70"], c: 0 },
+                { q: "Si X es una Poisson con λ = 0.1, ¿cuál es el valor más probable para X?", a: ["0.1", "0", "1", "0.5"], c: 1 },
+                { q: "Si X ~ B(30, 0.1), ¿cuál es la esperanza matemática de X?", a: ["30", "0.1", "3", "2.7"], c: 2 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1) = 0.8413, calcula P(Z > 1).", a: ["0.8413", "0.5000", "0.1312", "0.1587"], c: 3 },
+                { q: "En una Normal N(20, 4), el valor tipificado correspondiente a X = 12 es...", a: ["-2", "2", "-1", "1"], c: 0 },
+                { q: "Si X ~ B(100; 0.5), ¿cuál es el valor de su varianza?", a: ["100", "25", "50", "5"], c: 1 },
+                { q: "Si una Poisson tiene de varianza 9, ¿cuál es la media de esta distribución?", a: ["3", "1.5", "9", "81"], c: 2 },
+                { q: "Para una Binomial B(10; 0.1), calcula la probabilidad de que X sea igual a 1.", a: ["0.10", "0.3487", "0.25", "0.3874"], c: 3 },
+                { q: "Si X es una Normal con μ = 10 y σ = 2, ¿cuál es la probabilidad P(X < 10)?", a: ["0.5", "1.0", "0", "0.25"], c: 0 },
+                { q: "En una Poisson con λ = 1.5, ¿cuál es la varianza de esta variable?", a: ["1.5", "2.25", "1.22", "1"], c: 0 },
+                { q: "Si X ~ B(20; 0.3), ¿cuál es la media de éxitos que se esperan tener?", a: ["20", "6", "14", "4.2"], c: 1 },
+                { q: "En una Normal N(0, 1), ¿cuánto vale la probabilidad de P(-1 < Z < 1) aproximadamente?", a: ["0.95", "0.50", "0.68", "0.99"], c: 2 },
+                { q: "Si una Poisson tiene media λ = 2.5, ¿cuál es la varianza de la distribución?", a: ["6.25", "1.58", "1", "2.5"], c: 3 },
+                { q: "Si X ~ B(4; 0.5), calcula la probabilidad de que X sea igual a 2.", a: ["0.375", "0.25", "0.50", "0.125"], c: 0 },
+                { q: "Sabiendo que Z ~ N(0, 1), calcula el valor de la probabilidad P(Z ≤ 2.33) aproximadamente.", a: ["0.50", "0.99", "0.95", "0.90"], c: 1 },
+                { q: "Si una Poisson tiene desviación típica de 1, ¿cuál es su varianza?", a: ["0", "0.5", "1", "2"], c: 2 },
+                { q: "Si X ~ B(80; 0.05), ¿cuál es la media de esta distribución binomial?", a: ["80", "0.05", "40", "4"], c: 3 },
+                { q: "Para una variable Normal N(200, 20), el valor tipificado correspondiente a X = 190 es...", a: ["-0.5", "0.5", "-1", "1"], c: 0 },
+                { q: "En una Poisson de media λ = 0.2, ¿cuál es la probabilidad de que ocurra P(X = 0)?", a: ["0.2", "e^(-0.2)", "1 - e^(-0.2)", "0"], c: 1 },
+                { q: "Si X ~ B(10; 0.4), calcula la desviación típica de esta distribución.", a: ["4", "2.4", "1.55", "1.2"], c: 2 },
+                { q: "En una Normal tipificada Z ~ N(0, 1), ¿cuánto vale P(Z ≥ -1.96) aproximadamente?", a: ["0.025", "0.05", "0.95", "0.975"], c: 3 },
+                { q: "Si una variable de Poisson tiene media λ = 4, ¿cuál es su desviación típica?", a: ["2", "4", "16", "1"], c: 0 },
+                { q: "Si X ~ B(100; 0.25), ¿cuál es el valor de su media?", a: ["100", "25", "75", "18.75"], c: 1 },
+                { q: "Para una Normal N(10, 1), ¿cuál es el valor de la media?", a: ["1", "0", "10", "100"], c: 2 },
+                { q: "Si una Poisson tiene de media λ = 3, calcula la probabilidad de P(X = 2).", a: ["e^(-3)", "3e^(-3)", "4.5e^(-3)", "1"], c: 2 },
+                { q: "Si X ~ B(5; 0.2), ¿cuál es la probabilidad de que X sea mayor o igual a 1?", a: ["0.2", "0.8", "0.3277", "0.6723"], c: 3 },
+                { q: "En una Normal N(60, 6), el valor de la variable X que tiene una tipificación Z = 0 es...", a: ["60", "6", "0", "54"], c: 0 },
+                { q: "Si X sigue una Poisson con λ = 1.2, ¿cuál es su esperanza matemática?", a: ["1.2", "1.44", "0.12", "1"], c: 0 },
+                { q: "Si X ~ B(15; 0.2), ¿cuánto vale la esperanza de X?", a: ["15", "3", "12", "2.4"], c: 1 },
+                { q: "Para una Normal tipificada, la probabilidad P(Z ≤ -1) es equivalente por simetría a...", a: ["P(Z ≤ 1)", "P(Z > -1)", "P(Z ≥ 1)", "P(Z < 0)"], c: 2 },
+                { q: "Si una Poisson tiene varianza de 4, ¿cuál es el valor de su parámetro λ?", a: ["16", "2", "1", "4"], c: 3 },
+                { q: "Si X ~ B(10, 0.5), ¿cuál es el valor de su varianza?", a: ["2.5", "5.0", "1.25", "1.58"], c: 0 },
+                { q: "En una Normal N(120, 15), el valor de X tipificado para X = 135 es...", a: ["15", "1", "0", "2"], c: 1 },
+                { q: "Para una Poisson de parámetro λ = 0.8, ¿cuál es la varianza?", a: ["0.64", "0.8", "1.6", "1.2"], c: 1 },
+                { q: "Si X ~ B(6; 0.1), calcula la probabilidad de que X sea igual a 0.", a: ["0.5314", "0.4686", "0.0001", "0.6000"], c: 0 },
+                { q: "Sabiendo que Z ~ N(0, 1), calcula P(-1.96 < Z < 1.96) de forma exacta.", a: ["0.95", "0.90", "0.975", "0.99"], c: 0 },
+                { q: "Si una Poisson tiene desviación típica de 2, ¿cuál es la varianza de esta variable?", a: ["2", "4", "16", "1.41"], c: 1 },
+                { q: "Si X ~ B(50, 0.1), ¿cuál es la media de éxitos de esta distribución?", a: ["50", "0.1", "5", "4.5"], c: 2 },
+                { q: "Para una Normal N(100, 10), ¿qué probabilidad hay de que X sea mayor que 100?", a: ["1.0", "0", "0.25", "0.5"], c: 3 },
+                { q: "Si una variable de Poisson tiene media λ = 2.2, ¿cuál es su varianza?", a: ["2.2", "4.84", "1.48", "1"], c: 0 },
+                { q: "Si X ~ B(8; 0.25), ¿cuánto vale la media de X?", a: ["8", "2", "6", "1.5"], c: 1 },
+                { q: "En una Normal tipificada Z, la probabilidad P(Z < -1.5) es igual a...", a: ["P(Z < 1.5)", "P(Z ≥ 1.5)", "1 - P(Z ≤ 1.5)", "P(Z > 1.5)"], c: 2 },
+                { q: "Sabiendo que X ~ N(30, 5), calcula la tipificación Z para X = 40.", a: ["5", "10", "1.5", "2"], c: 3 },
+                { q: "Si X es una Poisson con λ = 1, calcula el valor de la varianza.", a: ["1", "0", "e", "e^(-1)"], c: 0 },
+                { q: "Si X ~ B(10; 0.30), ¿cuánto vale la probabilidad de P(X = 10)?", a: ["0.30", "0.0000059", "0.000059", "0.00059"], c: 1 },
+                { q: "En una Normal N(80, 8), el intervalo (72, 88) contiene aproximadamente a qué porcentaje de los datos?", a: ["95%", "99.7%", "68.26%", "50%"], c: 2 },
+                { q: "Si una Poisson tiene de media λ = 5, ¿cuál es su desviación típica?", a: ["5", "25", "1", "2.23"], c: 3 },
+                { q: "Si X ~ B(40; 0.5), ¿cuál es el valor de su varianza?", a: ["10", "20", "5", "15"], c: 0 },
+                { q: "Sabiendo que Z ~ N(0, 1), calcula P(Z > 1.64) de forma aproximada.", a: ["0.95", "0.05", "0.10", "0.025"], c: 1 },
+                { q: "Si una Poisson tiene media de 0.05, ¿cuál es su varianza?", a: ["0.0025", "0.05", "0.1", "0.95"], c: 1 },
+                { q: "Si X ~ B(10; 0.1), calcula la probabilidad de P(X = 1).", a: ["0.10", "0.3874", "0.3487", "0.25"], c: 1 },
+                { q: "En una Normal N(10, 2), la desviación típica de la variable es...", a: ["10", "4", "2", "1.41"], c: 2 },
+                { q: "Si una Poisson tiene desviación típica de 5, ¿cuál es su media λ?", a: ["5", "2.23", "10", "25"], c: 3 }
             ],
             dificil: [
                 { q: "Una variable Normal Z sigue una N(0, 1). Si P(Z ≤ 1) = 0.84, por simetría de la campana, ¿cuánto vale P(Z ≥ 1)?", a: ["0.16", "0.84", "0.50", "-0.84"], c: 0 },
-                { q: "Las espadas de Íñigo tienen una longitud N(90, 2). Al tipificar la variable para el valor X = 92 cm, obtenemos una Z igual a...", a: ["1", "2", "0", "92"], c: 0 },
-                { q: "Si Z es una distribución Normal estándar N(0, 1), ¿cuál es el valor exacto de la probabilidad P(Z ≤ 0)?", a: ["0.5", "0", "1", "-0.5"], c: 0 },
-                { q: "Queremos aproximar una Binomial X ~ B(100; 0.5) mediante una Normal usando Moivre-Laplace. ¿Cuál será la media (μ) de dicha Normal?", a: ["50", "25", "5", "10"], c: 0 },
-                { q: "Si Z sigue una N(0, 1) and sabemos que P(Z ≤ 1.5) = 0.9332. ¿Cuál es el valor de P(Z ≤ -1.5)?", a: ["0.0668", "0.9332", "0.5000", "0.1332"], c: 0 }
+                { q: "Las espadas de Íñigo tienen una longitud N(90, 2). Al tipificar la variable para el valor X = 92 cm, obtenemos una Z igual a...", a: ["2", "1", "0", "92"], c: 1 },
+                { q: "Si Z es una distribución Normal estándar N(0, 1), ¿cuál es el valor exacto de la probabilidad P(Z ≤ 0)?", a: ["0", "1", "0.5", "-0.5"], c: 2 },
+                { q: "Queremos aproximar una Binomial X ~ B(100; 0.5) mediante una Normal usando Moivre-Laplace. ¿Cuál será la media (μ) de dicha Normal?", a: ["25", "5", "10", "50"], c: 3 },
+                { q: "Si Z sigue una N(0, 1) y sabemos que P(Z ≤ 1.5) = 0.9332. ¿Cuál es el valor de P(Z ≤ -1.5)?", a: ["0.0668", "0.9332", "0.5000", "0.1332"], c: 0 },
+                { q: "Una variable aleatoria Normal tiene μ = 50 y σ = 10. ¿Cuál es el valor tipificado Z para X = 35?", a: ["1.5", "-1.5", "1.5", "3.5"], c: 1 },
+                { q: "Para una variable Normal Z ~ N(0, 1), calcula la probabilidad P(-1 ≤ Z ≤ 1) sabiendo que P(Z ≤ 1) = 0.8413.", a: ["0.8413", "0.1587", "0.6826", "0.3413"], c: 2 },
+                { q: "Si queremos aproximar una variable Binomial X ~ B(200; 0.1) mediante una distribución de Poisson, ¿cuál será el parámetro λ?", a: ["200", "0.1", "2", "20"], c: 3 },
+                { q: "Si Z es una variable Normal estándar N(0, 1), calcula P(Z > -1) sabiendo que P(Z ≤ 1) = 0.8413.", a: ["0.8413", "0.1587", "0.5000", "0.3413"], c: 0 },
+                { q: "Se aproxima una Binomial X ~ B(100; 0.2) por una Normal Y. ¿Cuál es la desviación típica σ de dicha Normal?", a: ["20", "4", "16", "5"], c: 1 },
+                { q: "Para aplicar la aproximación de la Binomial por la Normal (Moivre-Laplace), las condiciones habituales son que...", a: ["n ≥ 10", "n·p ≥ 3 y n·q ≥ 3", "n·p ≥ 5 y n·q ≥ 5", "n ≥ 100"], c: 2 },
+                { q: "Si Z es N(0,1), sabiendo que P(Z ≤ 1.96) = 0.975, ¿cuál es el valor aproximado de la probabilidad P(-1.96 ≤ Z ≤ 1.96)?", a: ["0.975", "0.99", "0.90", "0.95"], c: 3 },
+                { q: "En una Normal N(12, 2), ¿cuál es la tipificación Z para un valor de la variable X = 15?", a: ["1.5", "3", "0.75", "1.2"], c: 0 },
+                { q: "Si X es una distribución Normal con media 100 y desviación típica 15. Calcula P(X > 100).", a: ["0", "0.5", "1", "0.25"], c: 1 },
+                { q: "Si Z sigue una N(0, 1) y P(Z ≤ z) = 0.95, ¿cuál es el valor aproximado del percentil z?", a: ["1.96", "1.50", "1.64", "2.33"], c: 2 },
+                { q: "Sabiendo que X ~ B(400; 0.1) se aproxima por una Normal, ¿cuál es el valor de la varianza de la Normal aproximada?", a: ["40", "400", "6", "36"], c: 3 },
+                { q: "Si Z es N(0,1) y P(Z ≤ 1.2) = 0.8849, calcula el valor exacto de la probabilidad P(Z ≥ -1.2).", a: ["0.8849", "0.1151", "0.5000", "0.7698"], c: 0 },
+                { q: "En una Normal N(80, 5), calcula el valor de X para el cual se obtiene una tipificación Z = -2.", a: ["75", "70", "85", "80"], c: 1 },
+                { q: "Para una distribución Normal N(μ, σ), ¿qué porcentaje de los datos se encuentra en el intervalo (μ - 2σ, μ + 2σ) aproximadamente?", a: ["68.26%", "99.73%", "95.44%", "90%"], c: 2 },
+                { q: "Si aproximamos una Binomial X ~ B(1000; 0.05) por una Normal, ¿cuál es la media μ de dicha Normal?", a: ["1000", "0.05", "5", "50"], c: 3 },
+                { q: "Si Z ~ N(0, 1) y P(Z ≤ 2) = 0.9772. Calcula el valor de P(Z ≤ -2).", a: ["0.0228", "0.9772", "0.0500", "0.9544"], c: 0 },
+                { q: "Tipifica la variable X = 8 para una distribución Normal con media 12 y varianza 16.", a: ["-1", "-1", "-2", "1"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(100; 0.1) por una Normal, calcula la desviación típica de la Normal obtenida.", a: ["10", "9", "3", "1.5"], c: 2 },
+                { q: "Si Z ~ N(0, 1) y P(Z ≤ z) = 0.99, ¿cuál es el valor del parámetro z de forma aproximada?", a: ["1.96", "1.64", "2.58", "2.33"], c: 3 },
+                { q: "Sabiendo que X ~ N(200, 10), calcula el valor tipificado para X = 185.", a: ["-1.5", "1.5", "-1.0", "1.0"], c: 0 },
+                { q: "Si X ~ B(100; 0.25) se aproxima por una Normal Y ~ N(25, 4.33). ¿Qué ajuste de continuidad se hace para calcular P(X ≤ 30)?", a: ["P(Y ≤ 30)", "P(Y ≤ 30.5)", "P(Y ≤ 29.5)", "P(Y < 30)"], c: 1 },
+                { q: "Para una distribución Normal estándar Z ~ N(0, 1), calcula P(Z > 2) sabiendo que P(Z ≤ 2) = 0.9772.", a: ["0.9772", "0.0500", "0.0228", "0.9544"], c: 2 },
+                { q: "Si aproximamos una Binomial X ~ B(50; 0.5) por una Normal, ¿cuál es la varianza de la Normal obtenida?", a: ["25", "5", "12", "12.5"], c: 3 },
+                { q: "Si Z es una Normal tipificada, ¿cuál de las siguientes relaciones es matemáticamente correcta?", a: ["P(Z > a) = 1 - P(Z ≤ a)", "P(Z < -a) = P(Z ≤ a)", "P(-a < Z < a) = 2P(Z ≤ a)", "P(Z > -a) = 1 - P(Z ≤ a)"], c: 0 },
+                { q: "Si X ~ N(15, 3), calcula la probabilidad de P(X ≤ 15).", a: ["0", "0.5", "1", "0.25"], c: 1 },
+                { q: "Para aproximar X ~ B(100; 0.3) por una Normal Y, calcula el valor de la varianza de Y.", a: ["30", "9", "21", "25"], c: 2 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 0.5) = 0.6915, calcula P(Z ≤ -0.5).", a: ["0.6915", "0.5000", "0.1915", "0.3085"], c: 3 },
+                { q: "Sabiendo que X ~ N(500, 50), calcula la tipificación de la variable para X = 575.", a: ["1.5", "1.5", "1.0", "0.75"], c: 0 },
+                { q: "Si aproximamos X ~ B(60; 0.5) por una Normal Y. ¿Qué ajuste de continuidad corresponde a P(X = 30)?", a: ["P(Y = 30)", "P(29.5 ≤ Y ≤ 30.5)", "P(Y ≤ 30.5)", "P(29 ≤ Y ≤ 31)"], c: 1 },
+                { q: "Para Z ~ N(0, 1), si sabemos que P(Z ≤ 1.64) = 0.95, ¿cuánto vale la probabilidad de P(Z > -1.64)?", a: ["0.05", "0.50", "0.95", "0.90"], c: 2 },
+                { q: "Si aproximamos una Binomial X ~ B(800; 0.1) por una Normal, ¿cuál es la desviación típica σ de esta Normal?", a: ["80", "72", "8", "8.49"], c: 3 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1.1) = 0.8643, calcula P(0 ≤ Z ≤ 1.1).", a: ["0.3643", "0.8643", "0.5000", "0.1357"], c: 0 },
+                { q: "Si X ~ N(60, 4), el valor tipificado correspondiente a X = 55 es...", a: ["-1.25", "-1.25", "1.25", "-1.0"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(20; 0.5) por una Normal, ¿cuál es el valor de la media μ de la Normal?", a: ["5", "2.23", "10", "15"], c: 2 },
+                { q: "Para una distribución Normal N(μ, σ), ¿qué porcentaje de los datos se encuentra en el intervalo (μ - 3σ, μ + 3σ) aproximadamente?", a: ["68.26%", "95.44%", "99%", "99.73%"], c: 3 },
+                { q: "Si Z es una Normal estándar N(0, 1) y sabemos que P(Z ≤ 0.8) = 0.7881, calcula P(Z > 0.8).", a: ["0.2119", "0.7881", "0.5000", "0.1119"], c: 0 },
+                { q: "En una Normal con varianza 4, la tipificación de un valor X que dista 3 unidades por encima de la media es...", a: ["0.75", "1.5", "3.0", "1.2"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(100; 0.09) por una Normal Y, calcula el valor de la desviación típica de Y.", a: ["9", "3", "2.86", "2.5"], c: 2 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 2.58) = 0.995, calcula P(-2.58 ≤ Z ≤ 2.58).", a: ["0.995", "0.900", "0.950", "0.990"], c: 3 },
+                { q: "Si X ~ N(150, 12), calcula el valor tipificado para X = 132.", a: ["-1.5", "1.5", "-1.2", "1.2"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(100; 0.4) por una Normal Y. ¿Qué ajuste de continuidad corresponde a P(X ≥ 45)?", a: ["P(Y ≥ 45)", "P(Y ≥ 44.5)", "P(Y ≥ 45.5)", "P(Y > 45)"], c: 1 },
+                { q: "Para Z ~ N(0, 1), calcula la probabilidad de P(Z ≤ -0.75) si sabemos que P(Z ≤ 0.75) = 0.7734.", a: ["0.7734", "0.5000", "0.2266", "0.1133"], c: 2 },
+                { q: "Si aproximamos una Binomial X ~ B(400; 0.25) por una Normal Y, ¿cuál es la desviación típica de Y?", a: ["100", "10", "8.66", "7.5"], c: 3 },
+                { q: "Si Z es una Normal tipificada, sabiendo que P(Z ≤ 1.4) = 0.9192, calcula P(Z > -1.4).", a: ["0.9192", "0.0808", "0.5000", "0.8384"], c: 0 },
+                { q: "En una Normal N(10, 1), el valor tipificado correspondiente a X = 8.5 es...", a: ["-1.5", "-1.5", "1.5", "-1.0"], c: 1 },
+                { q: "Sabiendo que X ~ B(500, 0.2) se aproxima por una Normal, calcula el valor de su varianza.", a: ["100", "200", "80", "64"], c: 2 },
+                { q: "Para una variable Normal tipificada Z, la probabilidad de que Z sea menor o igual que -3 es...", a: ["0.5", "0.0013", "0.05", "0.0013"], c: 3 },
+                { q: "Si X es una Normal N(120, 10), calcula la tipificación Z para X = 135.", a: ["1.5", "-1.5", "1.0", "2.0"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(40, 0.5) por una Normal Y, ¿cuál es la media de Y?", a: ["10", "20", "5", "15"], c: 1 },
+                { q: "Para Z ~ N(0, 1), sabiendo que P(Z ≤ 1) = 0.8413, calcula P(Z > -1).", a: ["0.1587", "0.5000", "0.8413", "0.6826"], c: 2 },
+                { q: "Sabiendo que X ~ B(1000, 0.1) se aproxima por una Normal Y, calcula el valor de la varianza de Y.", a: ["100", "10", "9", "90"], c: 3 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1.3) = 0.9032, calcula P(Z ≤ -1.3).", a: ["0.0968", "0.9032", "0.5000", "0.1936"], c: 0 },
+                { q: "Si X es una Normal N(40, 5), calcula la tipificación Z para X = 30.", a: ["-2", "-2", "2", "-1"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(64; 0.25) por una Normal Y, ¿cuál es la varianza de Y?", a: ["16", "12", "12", "9"], c: 2 },
+                { q: "Para Z ~ N(0, 1), ¿cuál es la probabilidad exacta de P(-1 ≤ Z ≤ 0)?", a: ["0.50", "0.8413", "0.1587", "0.3413"], c: 3 },
+                { q: "Si X es una Normal N(500, 25), el valor tipificado correspondiente a X = 550 es...", a: ["2", "-2", "1", "1.5"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(120, 0.5) por una Normal Y, ¿cuál es la media de Y?", a: ["30", "60", "15", "45"], c: 1 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 0.6) = 0.7257, calcula P(Z > 0.6).", a: ["0.7257", "0.5000", "0.2743", "0.1357"], c: 2 },
+                { q: "Sabiendo que X ~ B(800, 0.2) se aproxima por una Normal Y, calcula el valor de la desviación típica de Y.", a: ["160", "16", "12", "11.31"], c: 3 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1.5) = 0.9332, calcula P(0.5 ≤ Z ≤ 1.5) si P(Z ≤ 0.5) = 0.6915.", a: ["0.2417", "0.9332", "0.6915", "0.1132"], c: 0 },
+                { q: "Si X es una Normal N(20, 2), la tipificación de un valor X = 17 es...", a: ["-1.5", "-1.5", "1.5", "-1.0"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(100, 0.2) por una Normal Y, ¿cuál es la varianza de Y?", a: ["20", "4", "16", "12"], c: 2 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1.96) = 0.975, calcula P(Z > 1.96).", a: ["0.975", "0.050", "0.010", "0.025"], c: 3 },
+                { q: "Si X es una Normal N(100, 10), calcula el valor de X tipificado correspondiente a Z = -1.5.", a: ["85", "115", "90", "80"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(40, 0.5) por una Normal Y. ¿Qué ajuste de continuidad corresponde a P(X > 20)?", a: ["P(Y > 20)", "P(Y ≥ 20.5)", "P(Y ≥ 19.5)", "P(Y > 20.5)"], c: 1 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 0.4) = 0.6554, calcula P(Z ≤ -0.4).", a: ["0.6554", "0.5000", "0.3446", "0.1554"], c: 2 },
+                { q: "Si aproximamos una Binomial X ~ B(100, 0.5) por una Normal Y, ¿cuál es la desviación típica de Y?", a: ["50", "25", "10", "5"], c: 3 },
+                { q: "Si Z es una Normal tipificada, sabiendo que P(Z ≤ 0.5) = 0.6915, calcula P(Z > -0.5).", a: ["0.6915", "0.3085", "0.5000", "0.1915"], c: 0 },
+                { q: "En una Normal N(80, 4), el valor tipificado correspondiente a X = 86 es...", a: ["1.5", "1.5", "-1.5", "1.0"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(200, 0.1) por una Normal Y, ¿cuál es la varianza de Y?", a: ["20", "2", "18", "16"], c: 2 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1.28) = 0.90, calcula P(-1.28 ≤ Z ≤ 1.28).", a: ["0.90", "0.80", "0.95", "0.80"], c: 1 },
+                { q: "Si X es una Normal N(10, 2), calcula la probabilidad de P(X ≤ 14) tipificando, sabiendo que P(Z ≤ 2) = 0.9772.", a: ["0.9772", "0.0228", "0.5000", "0.8413"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(50, 0.2) por una Normal Y, ¿cuál es la media de Y?", a: ["50", "10", "40", "8"], c: 1 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 0.84) = 0.80, calcula P(Z > -0.84).", a: ["0.20", "0.50", "0.80", "0.60"], c: 2 },
+                { q: "Sabiendo que X ~ B(100, 0.36) se aproxima por una Normal Y, calcula el valor de la varianza de Y.", a: ["36", "6", "30", "23.04"], c: 3 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 0.75) = 0.7734, calcula P(Z ≤ -0.75).", a: ["0.2266", "0.7734", "0.5000", "0.1133"], c: 0 },
+                { q: "Si X es una Normal N(300, 30), el valor tipificado correspondiente a X = 270 es...", a: ["-1", "-1", "1", "-0.5"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(160, 0.5) por una Normal Y, ¿cuál es la desviación típica de Y?", a: ["80", "40", "6.32", "8"], c: 2 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 2.33) = 0.99, calcula P(Z > 2.33).", a: ["0.99", "0.05", "0.02", "0.01"], c: 3 },
+                { q: "Si X es una Normal N(60, 5), calcula la tipificación Z para X = 65.", a: ["1", "-1", "0", "1.5"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(80, 0.5) por una Normal Y, ¿cuál es la media de Y?", a: ["20", "40", "10", "30"], c: 1 },
+                { q: "Para Z ~ N(0, 1), sabiendo que P(Z ≤ 1) = 0.8413, calcula P(0 ≤ Z ≤ 1).", a: ["0.8413", "0.5000", "0.3413", "0.1587"], c: 2 },
+                { q: "Sabiendo que X ~ B(400, 0.1) se aproxima por una Normal Y, calcula el valor de la desviación típica de Y.", a: ["40", "6", "36", "6"], c: 3 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 1.4) = 0.9192, calcula P(Z ≤ -1.4).", a: ["0.0808", "0.9192", "0.5000", "0.1616"], c: 0 },
+                { q: "Si X es una Normal N(50, 2), calcula la tipificación Z para X = 47.", a: ["-1.5", "-1.5", "1.5", "-1.0"], c: 1 },
+                { q: "Si aproximamos una Binomial X ~ B(36, 0.5) por una Normal Y, ¿cuál es la varianza de Y?", a: ["18", "6", "9", "4.5"], c: 2 },
+                { q: "Para Z ~ N(0, 1), ¿cuál es la probabilidad aproximada de P(Z ≤ 3)?", a: ["0.5", "0.99", "0.95", "0.9987"], c: 3 },
+                { q: "Si X es una Normal N(1000, 100), el valor tipificado correspondiente a X = 1150 es...", a: ["1.5", "-1.5", "1", "1.2"], c: 0 },
+                { q: "Si aproximamos una Binomial X ~ B(200, 0.5) por una Normal Y, ¿cuál es la media de Y?", a: ["50", "100", "25", "75"], c: 1 },
+                { q: "Sabiendo que Z ~ N(0, 1) y P(Z ≤ 0.25) = 0.5987, calcula P(Z > 0.25).", a: ["0.5987", "0.5000", "0.4013", "0.1987"], c: 2 },
+                { q: "Sabiendo que X ~ B(500, 0.1) se aproxima por una Normal Y, calcula el valor de la desviación típica de Y.", a: ["50", "5", "45", "6.71"], c: 3 }
             ]
         };
 
@@ -612,12 +985,32 @@
             quizPlayer: null,
             quizCurrentStep: 0,
             lifelinesUsedThisQuestion: false,
-            used50: false, // Control de comodín 50% por intento
-            used25: false, // Control de comodín 25% por intento
             stats: {}
         };
 
         const STEPS_COUNT = 15;
+
+        // NUEVO: Algoritmo de mezcla de Fisher-Yates para desordenar las respuestas dinámicamente
+        function obtenerPreguntaMezclada(preguntaOriginal) {
+            let pregunta = {
+                q: preguntaOriginal.q,
+                a: [...preguntaOriginal.a],
+                c: preguntaOriginal.c
+            };
+
+            const respuestaCorrectaTexto = pregunta.a[pregunta.c];
+
+            // Mezcla aleatoria
+            for (let i = pregunta.a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pregunta.a[i], pregunta.a[j]] = [pregunta.a[j], pregunta.a[i]];
+            }
+
+            // Actualizar índice de respuesta correcta
+            pregunta.c = pregunta.a.indexOf(respuestaCorrectaTexto);
+
+            return pregunta;
+        }
 
         window.onload = function() {
             const container = document.getElementById("charSelectContainer");
@@ -655,12 +1048,7 @@
             checkedBoxes.forEach(box => {
                 const char = PERSONAJES.find(p => p.id === box.value);
                 activePlayers.push(char);
-                state.stats[char.id] = { 
-                    name: char.name, 
-                    pulsarWins: 0, 
-                    maxStep: 0, 
-                    lifelines: 0
-                };
+                state.stats[char.id] = { name: char.name, pulsarWins: 0, maxStep: 0, lifelines: 0 };
             });
 
             gameConfig.totalTime = parseInt(document.getElementById("inputTotalTime").value) * 60;
@@ -684,7 +1072,7 @@
         }
 
         function initPulsarPhase() {
-            clearInterval(timers.round);
+            clearInterval(timers.round); 
             state.currentPhase = "PULSAR";
             state.pulsarWinner = null;
             document.getElementById("currentPhaseName").innerText = "Pulsador Grupal";
@@ -708,8 +1096,11 @@
                 `;
             });
 
+            // CARGA Y MEZCLA DE PREGUNTAS DEL PULSADOR
             const index = Math.floor(Math.random() * BANCO_PREGUNTAS.pulsar.length);
-            state.currentPulsarQuestion = BANCO_PREGUNTAS.pulsar[index];
+            const preguntaOriginal = BANCO_PREGUNTAS.pulsar[index];
+            state.currentPulsarQuestion = obtenerPreguntaMezclada(preguntaOriginal);
+
             document.getElementById("pulsarQuestionBox").innerText = state.currentPulsarQuestion.q;
 
             const grid = document.getElementById("pulsarAnswersGrid");
@@ -745,7 +1136,7 @@
 
         function startPulsarRoundTimer() {
             clearInterval(timers.round);
-            state.roundTimeRemaining = 30;
+            state.roundTimeRemaining = 30; 
             document.getElementById("roundTimerBox").style.display = "block";
             document.getElementById("roundTimer").innerText = state.roundTimeRemaining;
 
@@ -785,7 +1176,7 @@
         }
 
         function checkPulsarAnswer(selectedIndex) {
-            clearInterval(timers.round);
+            clearInterval(timers.round); 
             const correctIndex = state.currentPulsarQuestion.c;
             const buttons = document.querySelectorAll("#pulsarAnswersGrid .answer-btn");
             
@@ -813,11 +1204,6 @@
             document.getElementById("currentPhaseName").innerText = "Escalada Individual";
             document.getElementById("roundTimerBox").style.display = "block";
 
-            // CORRECCIÓN: Reseteamos el uso de comodines al iniciar un intento de escalada individual
-            state.used50 = false;
-            state.used25 = false;
-            
-            // Forzar habilitar los botones físicamente en la interfaz gráfica
             document.getElementById("btn50").disabled = false;
             document.getElementById("btn25").disabled = false;
 
@@ -859,8 +1245,10 @@
 
             const bancoBloque = BANCO_PREGUNTAS[block];
             
+            // CARGA Y MEZCLA DE LAS PREGUNTAS DE ESCALADA
             const qIndex = Math.floor(Math.random() * bancoBloque.length);
-            state.currentQuizQuestion = bancoBloque[qIndex];
+            const preguntaOriginal = bancoBloque[qIndex];
+            state.currentQuizQuestion = obtenerPreguntaMezclada(preguntaOriginal);
 
             document.getElementById("quizQuestionBox").innerText = state.currentQuizQuestion.q;
             
@@ -908,7 +1296,6 @@
             const correctIdx = state.currentQuizQuestion.c;
 
             if (type === 50) {
-                state.used50 = true; 
                 document.getElementById("btn50").disabled = true;
                 let discarded = 0;
                 for(let i=0; i<4; i++) {
@@ -918,7 +1305,6 @@
                     }
                 }
             } else if (type === 25) {
-                state.used25 = true; 
                 document.getElementById("btn25").disabled = true;
                 for(let i=0; i<4; i++) {
                     if(i !== correctIdx) {
